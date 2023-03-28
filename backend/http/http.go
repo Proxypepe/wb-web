@@ -15,8 +15,8 @@ func NewServer() *Server {
 	return server
 }
 
-func (server *Server) Run() {
-	err := server.route.Run(":8080")
+func (server *Server) Run(addr ...string) {
+	err := server.route.Run(addr...)
 	if err != nil {
 		log.Fatal(err)
 		return
