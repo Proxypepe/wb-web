@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/Proxypepe/wb-web/backend/cache"
+	conf "github.com/Proxypepe/wb-web/backend/config"
 	pg "github.com/Proxypepe/wb-web/backend/db"
 	"github.com/Proxypepe/wb-web/backend/http"
 	"github.com/go-redis/redis"
@@ -10,9 +11,19 @@ import (
 )
 
 func main() {
-	addr := fmt.Sprintf("postgres://%s:%s@localhost:17200/%s?sslmode=disable", "alex", "postgres", "wb")
+
+	config := conf.NewConfig()
+
+	addr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		config.PostgresUser,
+		config.PostgresPassword,
+		config.PostgresHost,
+		config.PostgresPort,
+		config.PostgresDb,
+	)
 	repo, err := pg.NewPostgresRepository("postgres", addr)
 	if err != nil {
+		log.Print(addr)
 		log.Printf(err.Error())
 		log.Printf("Error creating postgres repository")
 		return
@@ -21,9 +32,9 @@ func main() {
 	pg.SetRepository(repo)
 
 	red, err := cache.NewRedisStore(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       0,
+		Addr:     fmt.Sprintf("%s:%s", config.RedisHost, config.RedisPort),
+		Password: config.RedisPassword,
+		DB:       config.RedisDB,
 	})
 
 	if err != nil {
@@ -32,8 +43,10 @@ func main() {
 
 	cache.SetCacheService(red)
 
+	serverAddr := fmt.Sprintf("%s:%s", config.ServerHost, config.ServerPort)
+
 	server := http.NewServer()
-	server.Run()
+	server.Run(serverAddr)
 
 	defer func() {
 		err := pg.CloseConn()

@@ -1,6 +1,7 @@
 version: "3.9"
 services:
   postgres:
+    container_name: postgres
     image: postgres
     restart: always
     environment:
@@ -10,9 +11,11 @@ services:
     ports:
       - "17200:5432"
     volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./data/postgres:/var/lib/postgresql/data
 
   nats:
+    container_name: nats-streaming
     image: nats-streaming
     command: ["-p", "4222", "-m", "8222", "--store", "file", "--dir", "/data"]
     restart: always
@@ -23,6 +26,7 @@ services:
       - ./data/nats:/data
 
   redis:
+    container_name: redis
     image: redis
     restart: always
     ports:
