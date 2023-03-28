@@ -1,0 +1,6 @@
+frontend
+.gitignore
+init.sql
+.git
+docker-compose.yml
+.dockerignore
