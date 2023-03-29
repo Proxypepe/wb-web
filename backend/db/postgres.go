@@ -78,7 +78,7 @@ func (repo *PostgresRepository) InsertOrder(ctx context.Context, order schemas.O
 }
 
 func (repo *PostgresRepository) GetOrders(ctx context.Context) ([]schemas.Order, error) {
-	rows, err := repo.db.Query(fmt.Sprintf(`SELECT
+	rows, err := repo.db.Query(`SELECT
    public.order.order_uid,
    public.order.track_number,
    public.order.entry,
@@ -111,7 +111,7 @@ func (repo *PostgresRepository) GetOrders(ctx context.Context) ([]schemas.Order,
         JOIN public.payment
              ON public."order".payment_id = public.payment.id
         Join public.delivery
-             ON public."order".delivery_id = public.delivery.id`))
+             ON public."order".delivery_id = public.delivery.id`)
 	if err != nil {
 		log.Print(err.Error())
 		return nil, err
@@ -201,6 +201,10 @@ func (repo *PostgresRepository) GetOrderByUID(ctx context.Context, uid string) (
              ON public."order".delivery_id = public.delivery.id
 	WHERE public.order.order_uid = '%s'
 	LIMIT 1;`, uid))
+	if err != nil {
+		log.Print(err.Error())
+		return schemas.Order{}, err
+	}
 	items, err := repo.GetItemsIdByOrderUid(uid)
 	if err != nil {
 		log.Print(err.Error())

@@ -30,7 +30,7 @@ func TestGetExistsOrderByUid(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 	var orderResponse schemas.Order
 	err = json.Unmarshal(w.Body.Bytes(), &orderResponse)
-
+	assert.Nil(t, err)
 	assert.Equal(t, order, orderResponse)
 }
 
