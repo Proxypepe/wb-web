@@ -18,6 +18,19 @@ type Config struct {
 	ServerPort       string
 }
 
+type TestConfig struct {
+	c                    *Config
+	TestPostgresUser     string
+	TestPostgresPassword string
+	TestPostgresDb       string
+	TestPostgresHost     string
+	TestPostgresPort     string
+	TestRedisHost        string
+	TestRedisPort        string
+	TestRedisDB          int
+	TestRedisPassword    string
+}
+
 func NewConfig() *Config {
 	return &Config{
 		PostgresUser:     os.Getenv("POSTGRES_USER"),
@@ -33,6 +46,21 @@ func NewConfig() *Config {
 		NatsSubject:      "",
 		ServerHost:       os.Getenv("SERVER_HOST"),
 		ServerPort:       os.Getenv("SERVER_PORT"),
+	}
+}
+
+func NewTestConfig() *TestConfig {
+	return &TestConfig{
+		c:                    NewConfig(),
+		TestPostgresUser:     "alex",
+		TestPostgresPassword: "postgres",
+		TestPostgresDb:       "test_wb",
+		TestPostgresHost:     "localhost",
+		TestPostgresPort:     "17200",
+		TestRedisHost:        "localhost",
+		TestRedisPort:        "6379",
+		TestRedisDB:          0,
+		TestRedisPassword:    "",
 	}
 }
 

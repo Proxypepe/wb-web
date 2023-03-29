@@ -2,5 +2,7 @@ frontend
 .gitignore
 init.sql
 .git
+data
+backend/tests
 docker-compose.yml
 .dockerignore

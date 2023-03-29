@@ -60,7 +60,7 @@ func (cache *RedisCache) GetOrder(uid string) (*schemas.Order, error) {
 	}
 	b, err := val.Bytes()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf(err.Error())
 		return nil, err
 	}
 	err = json.Unmarshal(b, &order)

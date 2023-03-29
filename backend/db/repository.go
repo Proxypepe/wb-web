@@ -10,6 +10,7 @@ type Repository interface {
 	InsertOrder(ctx context.Context, order schemas.Order) error
 	GetOrders(ctx context.Context) ([]schemas.Order, error)
 	GetOrderByUID(ctx context.Context, uid string) (schemas.Order, error)
+	TruncateOrders(ctx context.Context) error
 }
 
 var impl Repository
@@ -32,4 +33,8 @@ func GetOrders(ctx context.Context) ([]schemas.Order, error) {
 
 func GetOrderByUID(ctx context.Context, uid string) (schemas.Order, error) {
 	return impl.GetOrderByUID(ctx, uid)
+}
+
+func TruncateOrders(ctx context.Context) error {
+	return impl.TruncateOrders(ctx)
 }

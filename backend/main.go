@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/Proxypepe/wb-web/backend/cache"
 	conf "github.com/Proxypepe/wb-web/backend/config"
-	pg "github.com/Proxypepe/wb-web/backend/db"
+	"github.com/Proxypepe/wb-web/backend/db"
 	"github.com/Proxypepe/wb-web/backend/http"
 	"github.com/go-redis/redis"
 	"log"
@@ -21,7 +21,7 @@ func main() {
 		config.PostgresPort,
 		config.PostgresDb,
 	)
-	repo, err := pg.NewPostgresRepository("postgres", addr)
+	repo, err := db.NewPostgresRepository("postgres", addr)
 	if err != nil {
 		log.Print(addr)
 		log.Printf(err.Error())
@@ -29,7 +29,7 @@ func main() {
 		return
 	}
 
-	pg.SetRepository(repo)
+	db.SetRepository(repo)
 
 	red, err := cache.NewRedisStore(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", config.RedisHost, config.RedisPort),
@@ -49,7 +49,7 @@ func main() {
 	server.Run(serverAddr)
 
 	defer func() {
-		err := pg.CloseConn()
+		err := db.CloseConn()
 		if err != nil {
 			return
 		}

@@ -24,14 +24,15 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func (server *Server) initRouter() {
-	server.route = gin.Default()
-	server.route.Use(CORSMiddleware())
-	server.route.GET("/order", server.getOrder)
+	server.router = gin.Default()
+	server.router.Use(CORSMiddleware())
+	server.router.GET("/order", server.getOrder)
 }
 
 func (server *Server) getOrder(c *gin.Context) {
 	uid := c.Query("order_uid")
 	order, err := cache.GetOrder(uid)
+	// TODO: load data from pg and load to cache
 	if err != nil {
 		log.Print("")
 		c.String(http.StatusNotFound, "Unknown uid")

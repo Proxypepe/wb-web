@@ -3,10 +3,11 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"log"
+	"net/http"
 )
 
 type Server struct {
-	route *gin.Engine
+	router *gin.Engine
 }
 
 func NewServer() *Server {
@@ -16,9 +17,13 @@ func NewServer() *Server {
 }
 
 func (server *Server) Run(addr ...string) {
-	err := server.route.Run(addr...)
+	err := server.router.Run(addr...)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
+}
+
+func (server *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	server.router.ServeHTTP(w, r)
 }
