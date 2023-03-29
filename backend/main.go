@@ -24,8 +24,8 @@ func main() {
 	repo, err := db.NewPostgresRepository("postgres", addr)
 	if err != nil {
 		log.Print(addr)
-		log.Printf(err.Error())
-		log.Printf("Error creating postgres repository")
+		log.Print(err.Error())
+		log.Print("Error creating postgres repository")
 		return
 	}
 
@@ -38,7 +38,7 @@ func main() {
 	})
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 	}
 
 	cache.SetCacheService(red)

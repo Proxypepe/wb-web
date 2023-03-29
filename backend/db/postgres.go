@@ -16,13 +16,17 @@ type PostgresRepository struct {
 
 func NewPostgresRepository(driver string, url string) (*PostgresRepository, error) {
 	db, err := sql.Open(driver, url)
+	if err != nil {
+		log.Print(err.Error())
+		return nil, err
+	}
 	err = db.Ping()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return nil, err
 	}
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return nil, err
 	}
 	return &PostgresRepository{db: db}, nil
@@ -31,7 +35,7 @@ func NewPostgresRepository(driver string, url string) (*PostgresRepository, erro
 func (repo *PostgresRepository) CloseConn() error {
 	err := repo.db.Close()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return err
 	}
 	return nil
@@ -46,26 +50,26 @@ func (repo *PostgresRepository) InsertOrder(ctx context.Context, order schemas.O
 	)
 	paymentId, err = repo.InsertPayment(order.Payment)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return err
 	}
 
 	deliveryId, err = repo.InsertDelivery(order.Delivery)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return err
 	}
 
 	err = repo._insertOrder(order, deliveryId, paymentId)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return err
 	}
 
 	for _, item := range order.Items {
 		_, err = repo.InsertItem(item, order.OrderUID)
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return err
 		}
 	}
@@ -109,7 +113,7 @@ func (repo *PostgresRepository) GetOrders(ctx context.Context) ([]schemas.Order,
         Join public.delivery
              ON public."order".delivery_id = public.delivery.id`))
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return nil, err
 	}
 	var orders []schemas.Order
@@ -147,7 +151,7 @@ func (repo *PostgresRepository) GetOrders(ctx context.Context) ([]schemas.Order,
 		); err == nil {
 			items, err := repo.GetItemsIdByOrderUid(order.OrderUID)
 			if err != nil {
-				log.Printf(err.Error())
+				log.Print(err.Error())
 				return nil, err
 			}
 			order.Items = items
@@ -199,7 +203,7 @@ func (repo *PostgresRepository) GetOrderByUID(ctx context.Context, uid string) (
 	LIMIT 1;`, uid))
 	items, err := repo.GetItemsIdByOrderUid(uid)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return schemas.Order{}, err
 	}
 	var order schemas.Order
@@ -251,13 +255,13 @@ func (repo *PostgresRepository) _insertOrder(order schemas.Order, deliveryId int
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return err
 	}
 	defer func(stmt *sql.Stmt) {
 		err := stmt.Close()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 	}(stmt)
@@ -278,7 +282,7 @@ func (repo *PostgresRepository) _insertOrder(order schemas.Order, deliveryId int
 		order.OofShard,
 	)
 	if row.Err() != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return row.Err()
 	}
 
@@ -292,13 +296,13 @@ func (repo *PostgresRepository) InsertDelivery(delivery schemas.Delivery) (int, 
 			RETURNING id`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return 0, err
 	}
 	defer func(stmt *sql.Stmt) {
 		err := stmt.Close()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 	}(stmt)
@@ -313,7 +317,7 @@ func (repo *PostgresRepository) InsertDelivery(delivery schemas.Delivery) (int, 
 		delivery.Email,
 	).Scan(&id)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return 0, err
 	}
 	return id, nil
@@ -326,13 +330,13 @@ func (repo *PostgresRepository) InsertPayment(payment schemas.Payment) (int, err
 			RETURNING id`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return 0, err
 	}
 	defer func(stmt *sql.Stmt) {
 		err := stmt.Close()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 	}(stmt)
@@ -350,7 +354,7 @@ func (repo *PostgresRepository) InsertPayment(payment schemas.Payment) (int, err
 		payment.CustomFee,
 	).Scan(&id)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return 0, err
 	}
 	return id, nil
@@ -363,13 +367,13 @@ func (repo *PostgresRepository) InsertItem(item schemas.Item, orderUid string) (
 			RETURNING id`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return 0, err
 	}
 	defer func(stmt *sql.Stmt) {
 		err := stmt.Close()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 	}(stmt)
@@ -389,7 +393,7 @@ func (repo *PostgresRepository) InsertItem(item schemas.Item, orderUid string) (
 		item.Status,
 	).Scan(&id)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return 0, err
 	}
 	return id, nil
@@ -414,14 +418,14 @@ func (repo *PostgresRepository) GetDeliveryIdByDelivery(delivery schemas.Deliver
 		delivery.Email,
 	))
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return 0, err
 	}
 	var id int
 	if rows.Next() {
 		err := rows.Scan(&id)
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return 0, err
 		}
 		return id, err
@@ -454,14 +458,14 @@ func (repo *PostgresRepository) GetPaymentIdByPayment(payment schemas.Payment) (
 		payment.CustomFee,
 	))
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return 0, err
 	}
 	var id int
 	if rows.Next() {
 		err := rows.Scan(&id)
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return 0, err
 		}
 		return id, err
@@ -485,7 +489,7 @@ func (repo *PostgresRepository) GetItemsIdByOrderUid(uid string) ([]schemas.Item
 			FROM public.item
 			WHERE public.item.order_uid = '%s';`, uid))
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return nil, err
 	}
 	var items []schemas.Item

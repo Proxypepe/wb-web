@@ -63,8 +63,3 @@ func NewTestConfig() *TestConfig {
 		TestRedisPassword:    "",
 	}
 }
-
-func (config *Config) validate() bool {
-
-	return true
-}

@@ -22,20 +22,20 @@ func setupSuiteDB(tb testing.TB) func(tb testing.TB) {
 	)
 	repo, err := pg.NewPostgresRepository("postgres", addr)
 	if err != nil {
-		log.Printf("Error creating postgres repository")
+		log.Print("Error creating postgres repository")
 	}
 	pg.SetRepository(repo)
 	ctx := context.Background()
 	err = pg.TruncateOrders(ctx)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 	}
 
 	return func(tb testing.TB) {
 		log.Println("teardown suite")
 		err = pg.TruncateOrders(ctx)
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 		defer func() {
 			err := pg.CloseConn()
