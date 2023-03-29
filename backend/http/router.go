@@ -1,8 +1,11 @@
 package http
 
 import (
+	"context"
 	"github.com/Proxypepe/wb-web/backend/cache"
+	"github.com/Proxypepe/wb-web/backend/db"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 	"log"
 	"net/http"
 )
@@ -32,14 +35,32 @@ func (server *Server) initRouter() {
 func (server *Server) getOrder(c *gin.Context) {
 	uid := c.Query("order_uid")
 	order, err := cache.GetOrder(uid)
-	// TODO: load data from pg and load to cache
+
+	if err == redis.Nil {
+		ctx := context.Background()
+		orderDb, errorDb := db.GetOrderByUID(ctx, uid)
+		if errorDb != nil {
+			log.Print(errorDb.Error())
+			c.String(http.StatusNotFound, "Unknown uid")
+			return
+		}
+		err := cache.SaveOrder(orderDb)
+		if err != nil {
+			log.Print(errorDb.Error())
+			c.String(http.StatusNotFound, "Unknown uid")
+			return
+		}
+		c.JSON(http.StatusOK, orderDb)
+		return
+	}
+
 	if err != nil {
-		log.Print("")
+		log.Print(err)
 		c.String(http.StatusNotFound, "Unknown uid")
 		return
 	}
 	if order == nil {
-		log.Print("")
+		log.Print(err)
 		c.String(http.StatusNotFound, "Unknown uid")
 		return
 	}
