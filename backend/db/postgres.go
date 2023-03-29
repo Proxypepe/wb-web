@@ -240,9 +240,9 @@ func (repo *PostgresRepository) GetOrderByUID(ctx context.Context, uid string) (
 		if err != nil {
 			return schemas.Order{}, err
 		}
-		return order, err
+		return order, nil
 	}
-	return schemas.Order{}, errors.New("null uid")
+	return schemas.Order{}, errors.New("not found")
 }
 
 func (repo *PostgresRepository) _insertOrder(order schemas.Order, deliveryId int, paymentId int) error {

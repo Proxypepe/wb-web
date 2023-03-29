@@ -87,3 +87,11 @@ func TestInsertOrderDB(t *testing.T) {
 	err := pg.InsertOrder(ctx, order)
 	assert.Nil(t, err)
 }
+
+func TestGetNotExistsOrderDB(t *testing.T) {
+	teardownSuite := setupSuiteDB(t)
+	defer teardownSuite(t)
+	ctx := context.Background()
+	_, err := pg.GetOrderByUID(ctx, "123")
+	assert.Equal(t, err.Error(), "not found")
+}
