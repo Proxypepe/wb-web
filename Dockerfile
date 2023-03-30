@@ -23,6 +23,11 @@ ENV POSTGRES_DB=wb \
     POSTGRES_USER=alex \
     REDIS_HOST=redis \
     REDIS_PORT=6379 \
+    NATS_CLUSTER_ID=test-cluster\
+    NATS_CLIENT_ID=test-client\
+    NATS_HOST=nats\
+    NATS_PORT=4222\
+    NATS_SUBJECT=backend\
     SERVER_HOST=0.0.0.0 \
     SERVER_PORT=8080
 

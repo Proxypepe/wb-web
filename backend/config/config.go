@@ -13,6 +13,9 @@ type Config struct {
 	RedisDB          int
 	RedisPassword    string
 	NatsClusterID    string
+	NatsClientID     string
+	NatsHost         string
+	NatsPort         string
 	NatsSubject      string
 	ServerHost       string
 	ServerPort       string
@@ -42,8 +45,11 @@ func NewConfig() *Config {
 		RedisPort:        os.Getenv("REDIS_PORT"),
 		RedisDB:          0,
 		RedisPassword:    "",
-		NatsClusterID:    "",
-		NatsSubject:      "",
+		NatsClusterID:    os.Getenv("NATS_CLUSTER_ID"),
+		NatsClientID:     os.Getenv("NATS_CLIENT_ID"),
+		NatsHost:         os.Getenv("NATS_HOST"),
+		NatsPort:         os.Getenv("NATS_PORT"),
+		NatsSubject:      os.Getenv("NATS_SUBJECT"),
 		ServerHost:       os.Getenv("SERVER_HOST"),
 		ServerPort:       os.Getenv("SERVER_PORT"),
 	}
