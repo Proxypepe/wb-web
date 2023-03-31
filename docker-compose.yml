@@ -12,6 +12,17 @@ services:
       postgres:
         condition: service_healthy
 
+  frontend:
+    container_name: frontend
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   postgres:
     container_name: postgres
     image: postgres

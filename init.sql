@@ -87,3 +87,14 @@ create table if not exists item
 alter table item
     owner to alex;
 
+INSERT INTO public.delivery (name, phone, zip, city, address, region, email)
+VALUES ('Test Testov', '+9720000000', '2639809', 'Kiryat Mozkin', 'Ploshad Mira 15', 'Kraiot', 'test@gmail.com');
+INSERT INTO public.payment (transaction, request_id, currency, provider, amount, payment_dt, bank, delivery_cost, goods_total, custom_fee)
+VALUES ('b563feb7b2b84b6test', '', 'USD', 'wbpay', 1817, 1637907727, 'alpha', 1500, 317, 0);
+INSERT INTO public.order (order_uid, track_number, entry, delivery_id, payment_id, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard)
+VALUES ('b563feb7b2b84b6test', 'WBILMTESTTRACK', 'WBIL', 1, 1, 'en', '', 'test', 'meest', '9', 99, '2023-03-30 21:31:00.5773854 +0300 MSK m=+1.111687201', '1');
+INSERT INTO public.item (order_uid, chrt_id, track_number, price, rid, name, sale, size, total_price, nm_id, brand, status)
+VALUES ('b563feb7b2b84b6test', 9934930, 'WBILMTESTTRACK', 453, 'ab4219087a764ae0btest', 'Mascaras', 30, '0', 317, 2389212, 'Vivienne Sabo', 202);
+INSERT INTO public.item (order_uid, chrt_id, track_number, price, rid, name, sale, size, total_price, nm_id, brand, status)
+VALUES ('b563feb7b2b84b6test', 9934932, 'WBILMTESTTRACK', 433, 'ab4219087a764ae0btest', 'Mascaras', 34, '0', 315, 2389212, 'Vivienne Sabo', 202);
+
