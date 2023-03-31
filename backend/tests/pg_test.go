@@ -49,13 +49,13 @@ func setupSuiteDB(tb testing.TB) func(tb testing.TB) {
 func TestGetOrderBD(t *testing.T) {
 	teardownSuite := setupSuiteDB(t)
 	defer teardownSuite(t)
-	orderUid := "123"
-	order := GetExampleOrder(orderUid)
+	orderUID := "123"
+	order := GetExampleOrder(orderUID)
 	ctx := context.Background()
 	err := pg.InsertOrder(ctx, order)
 	assert.Nil(t, err)
 
-	getOrder, err := pg.GetOrderByUID(ctx, orderUid)
+	getOrder, err := pg.GetOrderByUID(ctx, orderUID)
 	assert.Nil(t, err)
 
 	assert.Equal(t, getOrder, order)
@@ -81,8 +81,8 @@ func TestGetOrdersBD(t *testing.T) {
 func TestInsertOrderDB(t *testing.T) {
 	teardownSuite := setupSuiteDB(t)
 	defer teardownSuite(t)
-	orderUid := "123"
-	order := GetExampleOrder(orderUid)
+	orderUID := "123"
+	order := GetExampleOrder(orderUID)
 	ctx := context.Background()
 	err := pg.InsertOrder(ctx, order)
 	assert.Nil(t, err)

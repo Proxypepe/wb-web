@@ -44,30 +44,30 @@ func (repo *PostgresRepository) CloseConn() error {
 func (repo *PostgresRepository) InsertOrder(ctx context.Context, order schemas.Order) error {
 
 	var (
-		deliveryId int
-		paymentId  int
+		deliveryID int
+		paymentID  int
 		err        error
 	)
-	paymentId, err = repo.InsertPayment(order.Payment)
+	paymentID, err = repo.insertPayment(order.Payment)
 	if err != nil {
 		log.Print(err.Error())
 		return err
 	}
 
-	deliveryId, err = repo.InsertDelivery(order.Delivery)
+	deliveryID, err = repo.insertDelivery(order.Delivery)
 	if err != nil {
 		log.Print(err.Error())
 		return err
 	}
 
-	err = repo._insertOrder(order, deliveryId, paymentId)
+	err = repo.insertOrder(order, deliveryID, paymentID)
 	if err != nil {
 		log.Print(err.Error())
 		return err
 	}
 
 	for _, item := range order.Items {
-		_, err = repo.InsertItem(item, order.OrderUID)
+		_, err = repo.insertItem(item, order.OrderUID)
 		if err != nil {
 			log.Print(err.Error())
 			return err
@@ -149,7 +149,7 @@ func (repo *PostgresRepository) GetOrders(ctx context.Context) ([]schemas.Order,
 			&order.Delivery.Region,
 			&order.Delivery.Email,
 		); err == nil {
-			items, err := repo.GetItemsIdByOrderUid(order.OrderUID)
+			items, err := repo.getItemsIDByOrderUID(order.OrderUID)
 			if err != nil {
 				log.Print(err.Error())
 				return nil, err
@@ -205,7 +205,7 @@ func (repo *PostgresRepository) GetOrderByUID(ctx context.Context, uid string) (
 		log.Print(err.Error())
 		return schemas.Order{}, err
 	}
-	items, err := repo.GetItemsIdByOrderUid(uid)
+	items, err := repo.getItemsIDByOrderUID(uid)
 	if err != nil {
 		log.Print(err.Error())
 		return schemas.Order{}, err
@@ -253,7 +253,16 @@ func (repo *PostgresRepository) GetOrderByUID(ctx context.Context, uid string) (
 	return schemas.Order{}, errors.New("not found")
 }
 
-func (repo *PostgresRepository) _insertOrder(order schemas.Order, deliveryId int, paymentId int) error {
+func (repo *PostgresRepository) TruncateOrders(ctx context.Context) error {
+	query := `TRUNCATE TABLE public.item, public.delivery, public.payment, public.order CASCADE`
+	_, err := repo.db.Exec(query)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *PostgresRepository) insertOrder(order schemas.Order, deliveryID int, paymentID int) error {
 	query := `INSERT INTO public.order (
            order_uid, track_number, entry, delivery_id, payment_id, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard) 
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
@@ -274,8 +283,8 @@ func (repo *PostgresRepository) _insertOrder(order schemas.Order, deliveryId int
 		order.OrderUID,
 		order.TrackNumber,
 		order.Entry,
-		deliveryId,
-		paymentId,
+		deliveryID,
+		paymentID,
 		order.Locale,
 		order.InternalSignature,
 		order.CustomerID,
@@ -293,7 +302,7 @@ func (repo *PostgresRepository) _insertOrder(order schemas.Order, deliveryId int
 	return nil
 }
 
-func (repo *PostgresRepository) InsertDelivery(delivery schemas.Delivery) (int, error) {
+func (repo *PostgresRepository) insertDelivery(delivery schemas.Delivery) (int, error) {
 	query := `INSERT INTO public.delivery (
             name, phone, zip, city, address, region, email) 
 			VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -327,7 +336,7 @@ func (repo *PostgresRepository) InsertDelivery(delivery schemas.Delivery) (int, 
 	return id, nil
 }
 
-func (repo *PostgresRepository) InsertPayment(payment schemas.Payment) (int, error) {
+func (repo *PostgresRepository) insertPayment(payment schemas.Payment) (int, error) {
 	query := `INSERT INTO public.payment (
 			transaction, request_id, currency, provider, amount, payment_dt, bank, delivery_cost, goods_total, custom_fee) 
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -364,7 +373,7 @@ func (repo *PostgresRepository) InsertPayment(payment schemas.Payment) (int, err
 	return id, nil
 }
 
-func (repo *PostgresRepository) InsertItem(item schemas.Item, orderUid string) (int, error) {
+func (repo *PostgresRepository) insertItem(item schemas.Item, orderUID string) (int, error) {
 	query := `INSERT INTO public.item (
             order_uid, chrt_id, track_number, price, rid, name, sale, size, total_price, nm_id, brand, status) 
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
@@ -383,7 +392,7 @@ func (repo *PostgresRepository) InsertItem(item schemas.Item, orderUid string) (
 	}(stmt)
 	var id int
 	err = stmt.QueryRow(
-		orderUid,
+		orderUID,
 		item.ChrtID,
 		item.TrackNumber,
 		item.Price,
@@ -403,7 +412,7 @@ func (repo *PostgresRepository) InsertItem(item schemas.Item, orderUid string) (
 	return id, nil
 }
 
-func (repo *PostgresRepository) GetDeliveryIdByDelivery(delivery schemas.Delivery) (int, error) {
+func (repo *PostgresRepository) getDeliveryIDByDelivery(delivery schemas.Delivery) (int, error) {
 	rows, err := repo.db.Query(fmt.Sprintf(`SELECT id FROM delivery d 	
           					WHERE 	d.name 	= 	'%s'
                             AND 	d.phone = 	'%s'
@@ -437,7 +446,7 @@ func (repo *PostgresRepository) GetDeliveryIdByDelivery(delivery schemas.Deliver
 	return 0, errors.New("nil select")
 }
 
-func (repo *PostgresRepository) GetPaymentIdByPayment(payment schemas.Payment) (int, error) {
+func (repo *PostgresRepository) getPaymentIDByPayment(payment schemas.Payment) (int, error) {
 	rows, err := repo.db.Query(fmt.Sprintf(`SELECT id FROM payment p 
           WHERE  p.transaction = '%s'
           AND    p.request_id = '%s'
@@ -477,7 +486,7 @@ func (repo *PostgresRepository) GetPaymentIdByPayment(payment schemas.Payment) (
 	return 0, errors.New("nil select")
 }
 
-func (repo *PostgresRepository) GetItemsIdByOrderUid(uid string) ([]schemas.Item, error) {
+func (repo *PostgresRepository) getItemsIDByOrderUID(uid string) ([]schemas.Item, error) {
 	rows, err := repo.db.Query(fmt.Sprintf(`SELECT 
     		   chrt_id,
 			   track_number,
@@ -519,13 +528,4 @@ func (repo *PostgresRepository) GetItemsIdByOrderUid(uid string) ([]schemas.Item
 	}
 
 	return items, nil
-}
-
-func (repo *PostgresRepository) TruncateOrders(ctx context.Context) error {
-	query := `TRUNCATE TABLE public.item, public.delivery, public.payment, public.order CASCADE`
-	_, err := repo.db.Exec(query)
-	if err != nil {
-		return err
-	}
-	return nil
 }

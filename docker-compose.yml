@@ -1,4 +1,4 @@
-version: "3.9"
+version: "2.4"
 services:
 
   backend:
@@ -8,6 +8,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   postgres:
     container_name: postgres
@@ -22,6 +25,12 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
 
   nats:
     container_name: nats-streaming

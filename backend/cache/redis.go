@@ -8,10 +8,12 @@ import (
 	"log"
 )
 
+// RedisCache Redis based cache implementation
 type RedisCache struct {
 	client *redis.Client
 }
 
+// NewRedisStore returns a structure for working with the cache
 func NewRedisStore(config *redis.Options) (*RedisCache, error) {
 	client := redis.NewClient(config)
 	pong, err := client.Ping().Result()

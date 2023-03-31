@@ -5,9 +5,10 @@ import (
 	"time"
 )
 
-func GetExampleOrder(orderUid string) schemas.Order {
+// GetExampleOrder returns a completed order with test data
+func GetExampleOrder(orderUID string) schemas.Order {
 	return schemas.Order{
-		OrderUID:    orderUid,
+		OrderUID:    orderUID,
 		TrackNumber: "WBILMTESTTRACK",
 		Entry:       "WBIL",
 		Delivery: schemas.Delivery{

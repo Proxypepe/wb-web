@@ -5,11 +5,11 @@ import (
 )
 
 type RepositoryImpl interface {
-	InsertDelivery(delivery schemas.Delivery) (int, error)
-	InsertPayment(payment schemas.Payment) (int, error)
-	InsertItem(item schemas.Item, orderUid string) (int, error)
-	_insertOrder(order schemas.Order, deliveryId int, paymentId int) error
-	GetDeliveryIdByDelivery(delivery schemas.Delivery) (int, error)
-	GetPaymentIdByPayment(payment schemas.Payment) (int, error)
-	GetItemsIdByOrderUid(uid string) ([]schemas.Item, error)
+	insertDelivery(delivery schemas.Delivery) (int, error)
+	insertPayment(payment schemas.Payment) (int, error)
+	insertItem(item schemas.Item, orderUID string) (int, error)
+	insertOrder(order schemas.Order, deliveryID int, paymentID int) error
+	getDeliveryIDByDelivery(delivery schemas.Delivery) (int, error)
+	getPaymentIDByPayment(payment schemas.Payment) (int, error)
+	getItemsIDByOrderUID(uid string) ([]schemas.Item, error)
 }
